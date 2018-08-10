@@ -1,4 +1,5 @@
 import argparse
+import urllib
 import sys
 import socket
 import requests
@@ -38,21 +39,30 @@ def portScan():
 	return results
 #--------------------------------------------------
 
-#Command Arg stuff---------------------------------
+#Command Arg stuff
 parser = argparse.ArgumentParser()
-
 parser.add_argument("RHOST",help="The host you would like to scan",type=str)
-
 parser.add_argument("-F","--fast",help="Scan only the top 100 most used ports. Defualt is top 1,000", action="store_true")
-
 parser.add_argument("-d","--dictionary",help="Dictionary to bruteforce url filepaths if webserver found",type=str)
-
 parser.add_argument("-t","--threads",help="Amound of threads to use in scanning, Default 4",default=4,type=int)
-
 args = parser.parse_args()
 
 print("[+] Starting port scan on RHOST: %s\n" % args.RHOST)
+
+#Start port scan
 ports = portScan()
+
 #Print out the open ports
 for i in range(0,len(ports)):
 	print("Port: %d Open!" % ports[i])
+print("\n")
+#Checks to see if webserver at any ports, if so then bruteforce URL
+print("[+] Starting Webserver detection and bruteforce\n")
+for i in range(0,len(ports)):
+	try:
+		req = "http://" + str(args.RHOST)+":"+str(ports[i])
+		response = requests.get(req,timeout=5)
+		if response.status_code == 200:
+			print("Webserver detected: %s" % req)
+	except:
+		pass
