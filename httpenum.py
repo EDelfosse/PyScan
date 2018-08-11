@@ -2,25 +2,43 @@
 import requests
 from multiprocessing.dummy import Pool as  ThreadPool
 
-def scan(RHOST,ports,threads,dictionary):
+def scan(RHOST,ports,threads,dictionary,extension):
 #########Finds all webservers##################################
 	def serverDetection(port):
 		req = "http://" + str(RHOST)+":"+str(port)
 		try:
 			response = requests.get(req,timeout=2)
-                	if response.status_code == 200:
+                	if response.status_code != 404:
                         	return port
 			else:
 				return()
         	except:
                 	return()
 ###############################################################
+	currentPortFocus = 0
+	extensionFlag = 0
+########Bruteforces URL########################################
+	def URLBruteforce(url):
+		if extensionFlag:
+			req = "http://" + str(RHOST)+"/" + url+ extension + ":"+str(currentPortFocus)
+                else:
+			req = "http://" + str(RHOST) + "/" + url + ":" + str(currentPortFocus)
+		try:
+                        response = requests.get(req,timeout=2)
+                        if response.status_code == 200:
+                                return url
+                        else:
+                                return()
+                except:
+                        return()
 
+###############################################################
 	#Sets up threading stuff
-	if threads > len(ports):
-		threads = len(ports)
-	pool = ThreadPool(threads)
-
+	tempThreads = threads
+	if tempThreads > len(ports):
+		tempThreads = len(ports)
+	pool = ThreadPool(tempThreads)
+	tempThreads=threads
 	#Runs the serverDetection function against each open port
 	results = pool.map(serverDetection,ports)
 	pool.close()
@@ -33,3 +51,23 @@ def scan(RHOST,ports,threads,dictionary):
 	#Output data
 	for i in range(0,len(results)):
 		print("Web server detected: %s:%d" % (RHOST, results[i]))
+	
+	#Start URL bruteforce
+	if dictionary != None:
+		print("\n[+] Starting URL Bruteforce against found webservers.\n")
+		dictionaryFile = open(dictionary, "r")
+		urls = dictionaryFile.read().split("\n")
+
+		#Threading stuff
+		tempThreads = threads
+        	if tempThreads > len(urls):
+        	        tempThreads = len(urls)
+	        pool = ThreadPool(tempThreads)
+
+		#Brute forces each
+		for i in range(0, len(results)):
+			currentPortFocus = results[i]
+			for i in range(0 , len(urls)):
+				validUrls = pool.map(URLBruteforce,urls)
+				print(validUrls)
+		

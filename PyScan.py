@@ -16,6 +16,7 @@ parser.add_argument("-F","--fast",help="Scan only the top 100 most used ports. D
 parser.add_argument("-d","--dictionary",help="Dictionary to bruteforce url filepaths if webserver found",type=str)
 parser.add_argument("-t","--threads",help="Amound of threads to use in scanning, Default 4",default=4,type=int)
 parser.add_argument("--nmap",help="Whether to run an nmap scan to detect service versions",action="store_true")
+parser.add_argument("-e","--extension", help="The extension you would like to scan for in webservers",type=str)
 args = parser.parse_args()
 
 #Start port scan
@@ -35,6 +36,6 @@ else:
 	
 	#Checks to see if webserver at any ports, if so then bruteforce URL
 	print("\n[+] Starting webserver detection and bruteforce\n")
-	httpenum.scan(args.RHOST,ports,args.threads,args.dictionary)
+	httpenum.scan(args.RHOST,ports,args.threads,args.dictionary,args.extension)
 
 	print("\n[+] Scan done")
