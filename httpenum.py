@@ -8,8 +8,8 @@ def scan(RHOST,ports,threads,dictionary,extension):
 		req = "http://" + str(RHOST)+":"+str(port)
 		try:
 			response = requests.get(req,timeout=2)
-                	if response.status_code != 404:
-                        	return port
+			if response.status_code != 404:
+				return port
 			else:
 				return()
         	except:
@@ -20,13 +20,15 @@ def scan(RHOST,ports,threads,dictionary,extension):
 ########Bruteforces URL########################################
 	def URLBruteforce(url):
 		if extensionFlag:
-			req = "http://" + str(RHOST)+"/" + url+ extension + ":"+str(currentPortFocus)
+			req = "http://" + str(RHOST)+":" + str(currentPortFocus) + "/" + url+ extension
                 else:
-			req = "http://" + str(RHOST) + "/" + url + ":" + str(currentPortFocus)
+			req = "http://" + str(RHOST) +":" + str(currentPortFocus) +  "/" + url +"/"
 		try:
                         response = requests.get(req,timeout=2)
                         if response.status_code == 200:
-                                return url
+                                print("URL found!: " + req)
+
+                                return req
                         else:
                                 return()
                 except:
@@ -67,7 +69,13 @@ def scan(RHOST,ports,threads,dictionary,extension):
 		#Brute forces each
 		for i in range(0, len(results)):
 			currentPortFocus = results[i]
-			for i in range(0 , len(urls)):
-				validUrls = pool.map(URLBruteforce,urls)
-				print(validUrls)
-		
+			validUrls = pool.map(URLBruteforce,urls)
+				
+			#Sorts output
+			validUrls = filter(None,validUrls)
+			validUrls.sort()
+				
+			#Outputs info
+			print("\nOutputting url's found: \n")
+			for i in range(0, len(validUrls)):
+				print(validUrls[i])

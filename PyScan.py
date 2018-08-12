@@ -30,9 +30,10 @@ for i in range(0,len(ports)):
 if len(ports) == 0:
 	print("[+] NO PORTS OPEN. IS THE HOST DOWN?")
 else:
-	#Runs nmap against open ports
-	print("\n[+] Starting nmap port scan against detected ports")
-	os.system("nmap " + args.RHOST + " -sC -sV -p  " + str(ports)[1:-1].strip().replace(" ",""))
+	if args.nmap:
+		#Runs nmap against open ports
+		print("\n[+] Starting nmap port scan against detected ports")
+		os.system("nmap " + args.RHOST + " -sC -sV -p  " + str(ports)[1:-1].strip().replace(" ",""))
 	
 	#Checks to see if webserver at any ports, if so then bruteforce URL
 	print("\n[+] Starting webserver detection and bruteforce\n")
